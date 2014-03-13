@@ -1,8 +1,10 @@
 package com.ivanparraga.rhinoembeddedexample;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class SymbolTable {
 	private final Map<String, EcmaValue> symbols;
@@ -31,5 +33,18 @@ public class SymbolTable {
 		}
 
 		return true;
+	}
+
+	public List<EcmaVariable> getVariables() {
+		List<EcmaVariable> variables = new ArrayList<>(symbols.size());
+
+		for (Entry<String, EcmaValue> entry : symbols.entrySet()) {
+			String varName = entry.getKey();
+			EcmaValue varValue = entry.getValue();
+			EcmaVariable variable = new EcmaVariable(varName, varValue);
+			variables.add(variable);
+		}
+
+		return variables;
 	}
 }

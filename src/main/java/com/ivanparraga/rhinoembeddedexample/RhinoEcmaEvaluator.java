@@ -1,31 +1,20 @@
 package com.ivanparraga.rhinoembeddedexample;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 public class RhinoEcmaEvaluator {
+	private static final String REFERENCE_ERROR = "ReferenceError";
+
 	public static EcmaValue evaluate(String expression, SymbolTable table) {
-		List<String> varsAtExpression = getVariablesAtExpression(expression);
-		List<EcmaVariable> variables = getVariablesFromSymbolTable(varsAtExpression, table);
+		List<EcmaVariable> variables = table.getVariables();
 		return evaluateExpression(expression, variables);
-	}
-
-	private static List<String> getVariablesAtExpression(String expression) {
-		return RhinoEcmaVariableFinder.getVariables(expression);
-	}
-
-	private static List<EcmaVariable> getVariablesFromSymbolTable(
-			List<String> varNames, SymbolTable table) {
-		if (!table.containsAll(varNames)) {
-			throw new IllegalArgumentException("Some variable not found at symbol table");
-		}
-
-		return Collections.<EcmaVariable>emptyList();
 	}
 
 	private static EcmaValue evaluateExpression(String expression,
@@ -36,6 +25,8 @@ public class RhinoEcmaEvaluator {
 			Scriptable scope = getScope(context, variables);
 			Object result = context.evaluateString(scope, expression, "", 1, null);
 			return EcmaValue.create(result);
+		} catch(EcmaError error) {
+			return handleException(error, variables);
 		} finally {
 			Context.exit();
 		}
@@ -45,6 +36,15 @@ public class RhinoEcmaEvaluator {
 		Scriptable scope = context.initStandardObjects();
 		initVariables(scope, variables);
 		return scope;
+	}
+
+	private static EcmaValue handleException(EcmaError error, List<EcmaVariable> variables) {
+		if (REFERENCE_ERROR.endsWith(error.getName())) {
+			throw new IllegalArgumentException("I couldn't resolve some "
+				+ "variable on expression with vars "
+				+ Arrays.toString(variables.toArray()), error);
+		}
+		throw error;
 	}
 
 	private static void initVariables(Scriptable scope, List<EcmaVariable> variables) {

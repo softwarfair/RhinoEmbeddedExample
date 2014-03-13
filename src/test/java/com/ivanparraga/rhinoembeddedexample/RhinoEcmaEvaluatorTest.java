@@ -1,7 +1,6 @@
 package com.ivanparraga.rhinoembeddedexample;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
@@ -54,7 +53,6 @@ public class RhinoEcmaEvaluatorTest {
 	public void testEvaluateVariableNotInSymbolTable() {
 		String expression = "i";
 		SymbolTable table = new SymbolTable();
-		when(table.isEmpty()).thenReturn(true);
 
 		RhinoEcmaEvaluator.evaluate(expression, table);
 	}
