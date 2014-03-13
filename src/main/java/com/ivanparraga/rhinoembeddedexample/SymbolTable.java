@@ -21,20 +21,6 @@ public class SymbolTable {
 		symbols.put(name, value);
 	}
 
-	public boolean isEmpty() {
-		return symbols.isEmpty();
-	}
-
-	public boolean containsAll(List<String> varNames) {
-		for (String varName : varNames) {
-			if (!symbols.containsKey(varName)) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 	public List<EcmaVariable> getVariables() {
 		List<EcmaVariable> variables = new ArrayList<>(symbols.size());
 

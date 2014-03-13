@@ -34,8 +34,22 @@ public class RhinoEcmaEvaluator {
 
 	private static Scriptable getScope(Context context, List<EcmaVariable> variables) {
 		Scriptable scope = context.initStandardObjects();
-		initVariables(scope, variables);
+		putJavaVariablesIntoEcmaScope(scope, variables);
 		return scope;
+	}
+
+	private static void putJavaVariablesIntoEcmaScope(Scriptable scope, List<EcmaVariable> variables) {
+		for (EcmaVariable variable : variables) {
+			putJavaVariableIntoEcmaScope(scope, variable);
+		}
+	}
+
+	private static void putJavaVariableIntoEcmaScope(Scriptable scope, EcmaVariable variable) {
+		String varName = variable.getName();
+		Object value = variable.getValue().getValue();
+
+		Object wrappedValue = Context.javaToJS(value, scope);
+		ScriptableObject.putProperty(scope, varName, wrappedValue);
 	}
 
 	private static EcmaValue handleException(EcmaError error, List<EcmaVariable> variables) {
@@ -45,19 +59,5 @@ public class RhinoEcmaEvaluator {
 				+ Arrays.toString(variables.toArray()), error);
 		}
 		throw error;
-	}
-
-	private static void initVariables(Scriptable scope, List<EcmaVariable> variables) {
-		for (EcmaVariable variable : variables) {
-			initVariable(scope, variable);
-		}
-	}
-
-	private static void initVariable(Scriptable scope, EcmaVariable variable) {
-		String varName = variable.getName();
-		Object value = variable.getValue().getValue();
-
-		Object wrappedValue = Context.javaToJS(value, scope);
-		ScriptableObject.putProperty(scope, varName, wrappedValue);
 	}
 }

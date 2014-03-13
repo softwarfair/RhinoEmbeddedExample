@@ -56,4 +56,29 @@ public class RhinoEcmaEvaluatorTest {
 
 		RhinoEcmaEvaluator.evaluate(expression, table);
 	}
+
+	@Test
+	public void testEvaluateStringExpressionVariable() {
+		String expression = "\"how many? \" + i";
+		SymbolTable table = new SymbolTable();
+		table.putSymbol("i", EcmaValue.create(10));
+
+		EcmaValue actualValue = RhinoEcmaEvaluator.evaluate(expression, table);
+
+		String expectedValue = "how many? 10";
+		assertEquals(expectedValue, actualValue.getValue());
+	}
+
+	@Test
+	public void testEvaluateStringExpressionTwoVariables() {
+		String expression = "Math.pow(i,j)";
+		SymbolTable table = new SymbolTable();
+		table.putSymbol("i", EcmaValue.create(2));
+		table.putSymbol("j", EcmaValue.create(3));
+
+		EcmaValue actualValue = RhinoEcmaEvaluator.evaluate(expression, table);
+
+		double expectedValue = Math.pow(2, 3);
+		assertEquals(expectedValue, actualValue.getValue());
+	}
 }
