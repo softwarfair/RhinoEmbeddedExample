@@ -38,22 +38,29 @@ public class RhinoEcmaEvaluator {
 		return scope;
 	}
 
-	private static void putJavaVariablesIntoEcmaScope(Scriptable scope, List<EcmaVariable> variables) {
+	private static void putJavaVariablesIntoEcmaScope(Scriptable scope,
+			List<EcmaVariable> variables) {
+
 		for (EcmaVariable variable : variables) {
 			putJavaVariableIntoEcmaScope(scope, variable);
 		}
 	}
 
-	private static void putJavaVariableIntoEcmaScope(Scriptable scope, EcmaVariable variable) {
-		String varName = variable.getName();
-		Object value = variable.getValue().getValue();
+	private static void putJavaVariableIntoEcmaScope(Scriptable scope,
+			EcmaVariable variable) {
 
-		Object wrappedValue = Context.javaToJS(value, scope);
-		ScriptableObject.putProperty(scope, varName, wrappedValue);
+		String variableName = variable.getName();
+		EcmaValue ecmaValue = variable.getValue();
+		Object javaValue = ecmaValue.getValue();
+
+		Object wrappedValue = Context.javaToJS(javaValue, scope);
+		ScriptableObject.putProperty(scope, variableName, wrappedValue);
 	}
 
-	private static EcmaValue handleException(EcmaError error, List<EcmaVariable> variables) {
-		if (REFERENCE_ERROR.endsWith(error.getName())) {
+	private static EcmaValue handleException(EcmaError error,
+			List<EcmaVariable> variables) {
+
+		if (REFERENCE_ERROR.equals(error.getName())) {
 			throw new IllegalArgumentException("I couldn't resolve some "
 				+ "variable on expression with vars "
 				+ Arrays.toString(variables.toArray()), error);
